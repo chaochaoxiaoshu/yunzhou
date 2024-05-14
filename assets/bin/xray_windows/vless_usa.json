@@ -1,0 +1,144 @@
+{
+  "log": {
+    "loglevel": "info"
+  },
+  "api": {
+    "tag": "api",
+    "services": [
+      "HandlerService",
+      "LoggerService",
+      "StatsService"
+    ]
+  },
+  "stats": {},
+  "policy": {
+    "levels": {
+      "0": {
+        "statsUserUplink": true,
+        "statsUserDownlink": true
+      }
+    },
+    "system": {
+      "statsInboundUplink": true,
+      "statsInboundDownlink": true,
+      "statsOutboundUplink": true,
+      "statsOutboundDownlink": true
+    }
+  },
+  "routing": {
+    "domainStrategy": "IPIfNonMatch",
+    "rules": [
+      {
+        "inboundTag": [
+          "api"
+        ],
+        "outboundTag": "api",
+        "type": "field"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "domain:my-proxy.com"
+        ],
+        "outboundTag": "proxy"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "domain:my-direct.com"
+        ],
+        "outboundTag": "proxy"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "geosite:cn",
+          "geosite:private"
+        ],
+        "outboundTag": "proxy"
+      },
+      {
+        "type": "field",
+        "ip": [
+          "geoip:cn",
+          "geoip:private"
+        ],
+        "outboundTag": "proxy"
+      }
+    ]
+  },
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 24511,
+      "protocol": "http",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 24512,
+      "protocol": "socks",
+      "settings": {
+        "udp": true
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 24513,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1"
+      },
+      "tag": "api"
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "67.198.152.43",
+            "port": 12347,
+            "users": [
+              {
+                "id": "fddd4ac9-f21d-42be-9d3d-8e5ad6aa6b65",
+                "flow": "xtls-rprx-vision",
+                "encryption": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "fingerprint": "firefox",
+          "serverName": "virt.153531.xyz",
+          "publicKey": "PjDexT2rmWI0hIvpPAE4sEVEokBrQgMkxDJH6eRwYwA",
+          "shortId": "724447cc",
+          "spiderX": "/"
+        }
+      }
+    },
+    {
+      "protocol": "freedom",
+      "tag": "direct"
+    }
+  ]
+}
